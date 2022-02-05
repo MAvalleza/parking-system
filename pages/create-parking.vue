@@ -201,7 +201,7 @@ export default {
         const entryRef = db.collection('parking-entries').doc();
         batch.set(entryRef, {
           entryNo,
-          facility: db.doc(`parking-facilities/${this.facilityId}`),
+          facility: this.facilityId,
         });
       });
       await batch.commit();
@@ -212,7 +212,7 @@ export default {
       this.parkingSlotsArray.forEach((slot, index) => {
         const slotInt = parseInt(slot);
         const payload = {
-          facility: db.doc(`parking-facilities/${this.facilityId}`),
+          facility: this.facilityId,
           hourlyRate: HOURLY_RATES[slotInt],
           slotNo: index + 1,
           type: slotInt,
@@ -233,7 +233,7 @@ export default {
           const payload = {
             entryNo,
             distance: distanceInt,
-            facility: db.doc(`parking-facilities/${this.facilityId}`),
+            facility: this.facilityId,
             slotNo: index + 1,
           };
           const distanceRef = db.collection('parking-distances').doc();
