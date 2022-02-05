@@ -109,7 +109,7 @@ export default {
     },
     setupEntries () {
       if (this.entriesTotal < 3) {
-        this.snackModel = { color: 'error', message: 'Entries must be at least 3' };
+        this.snackModel = { color: 'warning', message: 'Entries must be at least 3' };
         this.showSnack = true;
         return;
       }
@@ -133,7 +133,7 @@ export default {
       console.log('parking slots', this.parkingSlotsArray);
       if (this.parkingSlotsArray.find(slot => isNan(parseInt(slot)) ||
         !VALID_NUMBERS.includes(parseInt(slot)))) {
-        this.snackModel = { color: 'error', message: 'Parking slots input is invalid' };
+        this.snackModel = { color: 'warning', message: 'Parking slots input is invalid' };
         this.showSnack = true;
         return;
       }
@@ -143,87 +143,104 @@ export default {
     },
     validateInputs () {
       this.valid = true;
-      console.log('entries', this.entries);
-      this.entries.forEach((entry) => {
-        const { distancesString } = entry;
+      const entriesFormatted = this.entries.map((entry) => {
+        const { distancesString, entryNo } = entry;
         const str = distancesString.replace(/\s+/g, '');
         const distancesArray = str.split(',');
         if (distancesArray.find(slot => isNaN(slot) || parseInt(slot) < 1)) {
-          this.snackModel = { color: 'error', message: 'Distances input is invalid' };
+          this.snackModel = { color: 'warning', message: 'Distances input is invalid' };
           this.showSnack = true;
           this.valid = false;
-          return;
         }
 
         if (distancesArray.length !== this.parkingSlotsTotal) {
-          this.snackModel = { color: 'error', message: 'Insufficient distance inputs' };
+          this.snackModel = { color: 'warning', message: 'Insufficient distance inputs' };
           this.showSnack = true;
           this.valid = false;
         }
+        return {
+          entryNo,
+          distancesArray,
+        };
       });
 
       if (!this.valid) return;
-      this.createData();
+      console.log('entriesFormatted', entriesFormatted);
+      this.createData(entriesFormatted);
     },
-    async createData () {
-      await this.createFacility();
-      await this.createParkingEntries();
-      await this.createParkingSlots();
+    async createData (entries) {
+      try {
+        this.loading = true;
+        await this.createFacility();
+        await Promise.all([
+          this.createParkingEntries(entries),
+          this.createParkingSlots(),
+        ]);
+        await this.createParkingDistances(entries);
+        this.snackModel = { color: 'success', message: 'Parking system created successfully!' };
+        this.showSnack = true;
+        this.loading = false;
+        this.$router.push('/');
+      } catch (e) {
+        console.error(e);
+        this.snackModel = { color: 'error', message: e.message };
+        this.showSnack = true;
+      } finally {
+        this.loading = false;
+      }
     },
     async createFacility () {
-      try {
-        this.loading = true;
-        const facilityRef = await this.$fire.firestore.collection('parking-facilities').add({ name: this.facilityName });
-        this.facilityId = facilityRef.id;
-      } catch (e) {
-        console.error(e);
-      } finally {
-        this.loading = false;
-      }
+      const facilityRef = await this.$fire.firestore.collection('parking-facilities').add({ name: this.facilityName });
+      this.facilityId = facilityRef.id;
     },
-    async createParkingEntries () {
-      try {
-        this.loading = true;
-        const db = this.$fire.firestore;
-        const batch = db.batch();
-        this.entries.forEach((entry) => {
-          const { entryNo } = entry;
-          const entryRef = db.collection('parking-entries').doc();
-          batch.set(entryRef, {
-            entryNo,
-            facility: db.doc(`parking-facilities/${this.facilityId}`),
-          });
+    async createParkingEntries (entries) {
+      const db = this.$fire.firestore;
+      const batch = db.batch();
+      entries.forEach((entry) => {
+        const { entryNo } = entry;
+        const entryRef = db.collection('parking-entries').doc();
+        batch.set(entryRef, {
+          entryNo,
+          facility: db.doc(`parking-facilities/${this.facilityId}`),
         });
-        await batch.commit();
-      } catch (e) {
-        console.error(e);
-      } finally {
-        this.loading = false;
-      }
+      });
+      await batch.commit();
     },
     async createParkingSlots () {
-      try {
-        this.loading = true;
-        const db = this.$fire.firestore;
-        const batch = db.batch();
-        this.parkingSlotsArray.forEach((slot, index) => {
-          const slotInt = parseInt(slot);
+      const db = this.$fire.firestore;
+      const batch = db.batch();
+      this.parkingSlotsArray.forEach((slot, index) => {
+        const slotInt = parseInt(slot);
+        const payload = {
+          facility: db.doc(`parking-facilities/${this.facilityId}`),
+          hourlyRate: HOURLY_RATES[slotInt],
+          slotNo: index + 1,
+          type: slotInt,
+          isOccupied: false,
+        };
+        const slotRef = db.collection('parking-slots').doc();
+        batch.set(slotRef, payload);
+      });
+      await batch.commit();
+    },
+    async createParkingDistances (entries) {
+      const db = this.$fire.firestore;
+      const batch = db.batch();
+      entries.forEach((entry) => {
+        const { entryNo } = entry;
+        entry.distancesArray.forEach((distance, index) => {
+          const distanceInt = parseInt(distance);
           const payload = {
+            entryNo,
+            distance: distanceInt,
             facility: db.doc(`parking-facilities/${this.facilityId}`),
-            hourlyRate: HOURLY_RATES[slotInt],
             slotNo: index + 1,
-            type: slotInt,
-            isOccupied: false,
           };
-          const slotRef = db.collection('parking-slots').doc();
-          batch.set(slotRef, payload);
+          const distanceRef = db.collection('parking-distances').doc();
+          batch.set(distanceRef, payload);
         });
-        await batch.commit();
-      } catch (e) {
-        console.error(e);
-      } finally {
-        this.loading = false;
-      }
+      });
+      await batch.commit();
     },
   },
 };
