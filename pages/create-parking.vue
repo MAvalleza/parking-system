@@ -99,6 +99,11 @@ export default {
   },
   methods: {
     setupEntries () {
+      if (this.entriesTotal < 3) {
+        this.snackModel = { color: 'error', message: 'Entries must be at least 3' };
+        this.showSnack = true;
+        return;
+      }
       for (let i = 0; i < this.entriesTotal; i++) {
         const entryNo = i + 1;
         this.entries.push({
@@ -109,6 +114,11 @@ export default {
       this.showParkingSlotsInput = true;
     },
     onParkingSlotsInput () {
+      if (!this.parkingSlotsString) {
+        this.snackModel = { color: 'warning', message: 'Please provide an input' };
+        this.showSnack = true;
+        return;
+      }
       const str = this.parkingSlotsString.replace(/\s+/g, '');
       this.parkingSlotsArray = str.split(',');
       console.log('parking slots', this.parkingSlotsArray);
@@ -147,17 +157,14 @@ export default {
       this.createData();
     },
     async createData () {
-      console.log('create');
-      await Promise.all([
-        this.createFacility(),
-        this.createParkingEntries(),
-      ]);
+      await this.createFacility();
+      await this.createParkingEntries();
     },
     async createFacility () {
       try {
         this.loading = true;
         const facilityRef = await this.$fire.firestore.collection('parking-facilities').add({ name: this.facilityName });
-        this.facilityId = facilityRef.doc().id;
+        this.facilityId = facilityRef.id;
       } catch (e) {
         console.error(e);
       } finally {
