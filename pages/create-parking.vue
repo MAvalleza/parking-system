@@ -11,7 +11,7 @@
           dense
           hint="Press [ENTER]"
           :disabled="loading"
-          @keyup.enter="showEntryInput = true"
+          @keyup.enter="onNameInput"
         )
         v-text-field(
           v-if="showEntryInput"
@@ -68,6 +68,7 @@
 
 <script>
 import isNan from 'lodash/isNan';
+import { HOURLY_RATES } from '~/constants/slot-mappings';
 
 const VALID_NUMBERS = [0, 1, 2];
 
@@ -98,6 +99,14 @@ export default {
     };
   },
   methods: {
+    onNameInput () {
+      if (!this.facilityName) {
+        this.snackModel = { color: 'warning', message: 'Provide a name' };
+        this.showSnack = true;
+        return;
+      }
+      this.showEntryInput = true;
+    },
     setupEntries () {
       if (this.entriesTotal < 3) {
         this.snackModel = { color: 'error', message: 'Entries must be at least 3' };
@@ -159,6 +168,7 @@ export default {
     async createData () {
       await this.createFacility();
       await this.createParkingEntries();
+      await this.createParkingSlots();
     },
     async createFacility () {
       try {
@@ -183,6 +193,30 @@ export default {
             entryNo,
             facility: db.doc(`parking-facilities/${this.facilityId}`),
           });
+        });
+        await batch.commit();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async createParkingSlots () {
+      try {
+        this.loading = true;
+        const db = this.$fire.firestore;
+        const batch = db.batch();
+        this.parkingSlotsArray.forEach((slot, index) => {
+          const slotInt = parseInt(slot);
+          const payload = {
+            facility: db.doc(`parking-facilities/${this.facilityId}`),
+            hourlyRate: HOURLY_RATES[slotInt],
+            slotNo: index + 1,
+            type: slotInt,
+            isOccupied: false,
+          };
+          const slotRef = db.collection('parking-slots').doc();
+          batch.set(slotRef, payload);
         });
         await batch.commit();
       } catch (e) {
