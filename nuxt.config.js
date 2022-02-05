@@ -40,9 +40,26 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    [
+      '@nuxtjs/firebase',
+      {
+        config: {
+          apiKey: 'AIzaSyB7bIhexBDgIhaB-5G7wkeZ3-7PhgmdA1o',
+          authDomain: 'park-system-7fc6e.firebaseapp.com',
+          projectId: 'park-system-7fc6e',
+          storageBucket: 'park-system-7fc6e.appspot.com',
+          messagingSenderId: '224715022693',
+          appId: '1:224715022693:web:5e8e8d5acb6229cf50c18c',
+        },
+        services: {
+          firestore: true,
+          database: true,
+          functions: true,
+        },
+      },
+    ],
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    '@nuxtjs/firebase',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -51,14 +68,9 @@ export default {
     baseURL: '/',
   },
 
-  firebase: {
-    apiKey: 'AIzaSyB7bIhexBDgIhaB-5G7wkeZ3-7PhgmdA1o',
-    authDomain: 'park-system-7fc6e.firebaseapp.com',
-    projectId: 'park-system-7fc6e',
-    storageBucket: 'park-system-7fc6e.appspot.com',
-    messagingSenderId: '224715022693',
-    appId: '1:224715022693:web:5e8e8d5acb6229cf50c18c',
-  },
+  // firebase: {
+   
+  // },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {

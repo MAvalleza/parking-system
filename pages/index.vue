@@ -1,4 +1,14 @@
 <template lang="pug">
   div
-    h1 Hello
 </template>
+
+<script>
+
+export default {
+  asyncData ({ $fire }) {
+    const snapshot = await $fire.firestore.collection('parking-facilities').get();
+    const parkingFacilities = snapshot.docs.map(doc => doc.data());
+    return parkingFacilities;
+  }
+};
+</script>
