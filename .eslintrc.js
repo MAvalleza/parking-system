@@ -4,9 +4,6 @@ module.exports = {
     browser: true,
     node: true,
   },
-  parserOptions: {
-    parser: 'babel-eslint',
-  },
   extends: [
     '@nuxtjs',
     'plugin:nuxt/recommended',
@@ -22,5 +19,6 @@ module.exports = {
     'no-console': 'off',
     'no-multi-str': 'off',
     curly: ['error', 'multi-line'],
+    'vue/multi-word-component-names': 'off',
   },
 };
