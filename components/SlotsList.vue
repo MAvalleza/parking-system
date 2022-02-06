@@ -5,12 +5,20 @@
       v-for="(slot, key) in parkingSlots"
       :key="key"
     )
-      v-col(cols="12" md="4" xl="3")
+      v-col
         h4 Slot {{ slot.slotNo }} - {{ slot.type | format-size }}
-      v-col(cols="12" md="4" xl="3")
+      v-col
         strong(:class="slot.occupiedBy ? 'error--text' : 'success--text'") {{ slot.occupiedBy ? 'OCCUPIED' : 'VACANT' }}
-      v-col(cols="12" md="4" xl="3")
+      v-col
         span(v-if="slot.occupiedBy") {{ slot.occupiedBy | format-vehicle }}
+        i(v-else) No vehicle
+      v-col(
+        v-for="(distance, dKey) in slot.distances"
+        :key="dKey"
+      )
+        span.primary--text {{ distance }}&nbsp;
+        span from&nbsp;
+        span.warning--text Entry {{ dKey + 1}}
 </template>
 
 <script>

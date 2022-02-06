@@ -174,9 +174,9 @@ export default {
         await this.createFacility();
         await Promise.all([
           this.createParkingEntries(entries),
-          this.createParkingSlots(),
+          this.createParkingSlots(entries),
         ]);
-        await this.createParkingDistances(entries);
+        // await this.createParkingDistances(entries);
         this.snackModel = { color: 'success', message: 'Parking system created successfully!' };
         this.showSnack = true;
         this.loading = false;
@@ -206,42 +206,52 @@ export default {
       });
       await batch.commit();
     },
-    async createParkingSlots () {
+    async createParkingSlots (entries) {
       const db = this.$fire.firestore;
       const batch = db.batch();
       this.parkingSlotsArray.forEach((slot, index) => {
         const slotInt = parseInt(slot);
+        const distances = this.createParkingDistances(entries, index);
         const payload = {
           facility: this.facilityId,
           hourlyRate: HOURLY_RATES[slotInt],
           slotNo: index + 1,
           type: slotInt,
           occupiedBy: null,
+          distances,
         };
         const slotRef = db.collection('parking-slots').doc();
         batch.set(slotRef, payload);
       });
       await batch.commit();
     },
-    async createParkingDistances (entries) {
-      const db = this.$fire.firestore;
-      const batch = db.batch();
+    createParkingDistances (entries, index) {
+      const distances = [];
       entries.forEach((entry) => {
-        const { entryNo } = entry;
-        entry.distancesArray.forEach((distance, index) => {
-          const distanceInt = parseInt(distance);
-          const payload = {
-            entryNo,
-            distance: distanceInt,
-            facility: this.facilityId,
-            slotNo: index + 1,
-          };
-          const distanceRef = db.collection('parking-distances').doc();
-          batch.set(distanceRef, payload);
-        });
+        const distanceInt = parseInt(entry.distancesArray[index]);
+        distances.push(distanceInt);
       });
-      await batch.commit();
+      return distances;
     },
+    // async createParkingDistances (entries) {
+    //   const db = this.$fire.firestore;
+    //   const batch = db.batch();
+    //   entries.forEach((entry) => {
+    //     const { entryNo } = entry;
+    //     entry.distancesArray.forEach((distance, index) => {
+    //       const distanceInt = parseInt(distance);
+    //       const payload = {
+    //         entryNo,
+    //         distance: distanceInt,
+    //         facility: this.facilityId,
+    //         slotNo: index + 1,
+    //       };
+    //       const distanceRef = db.collection('parking-distances').doc();
+    //       batch.set(distanceRef, payload);
+    //     });
+    //   });
+    //   await batch.commit();
+    // },
   },
 };
 </script>
