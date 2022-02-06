@@ -13,9 +13,9 @@
       template(slot="item" slot-scope="data")
         span Entry {{ data.item.entryNo }}
     div.d-flex
-      //- Date Time
-      date-time-picker(
-        datetime
+      v-text-field(
+        v-model="parkingStartTime"
+        type="datetime-local"
         outlined
         dense
         label="Parking Date and Time"
@@ -24,17 +24,14 @@
         color="success"
         depressed
         large
-        :disabled="!selectedEntry"
+        :disabled="!selectedEntry || !parkingStartTime"
         @click="onPark"
       ).text-none.ml-5 PARK
 </template>
 
 <script>
-import DateTimePicker from './DateTimePicker';
+import { format, parseISO } from 'date-fns';
 export default {
-  components: {
-    DateTimePicker,
-  },
   props: {
     entries: {
       type: Array,
@@ -44,11 +41,17 @@ export default {
   data () {
     return {
       selectedEntry: null,
+      parkingStartTime: null,
     };
   },
   methods: {
     onPark () {
-      this.$emit('park', this.selectedEntry);
+      console.log('date time', this.parkingStartTime);
+      console.log('formatted date time', format(parseISO(this.parkingStartTime), 'yyyy-mm-dd'));
+      this.$emit('park', {
+        entry: this.selectedEntry,
+        startTime: this.parkingStartTime,
+      });
     },
   },
 };
