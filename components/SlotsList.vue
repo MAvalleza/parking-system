@@ -19,6 +19,8 @@
         span.primary--text {{ distance }}&nbsp;
         span from&nbsp;
         span.warning--text Entry {{ dKey + 1}}
+      v-col
+        v-btn(small color="error" depressed) UNPARK
 </template>
 
 <script>
