@@ -1,13 +1,19 @@
 <template lang="pug">
-  v-container.fill-height
-    v-row(align="center")
-      v-col(cols="12" md="4" xl="3")
+  v-container
+    h3 Parking System
+    v-row.mt-10
+      v-col(cols="12" md="7" xl="5")
         facility-select(
           :facilities="parkingFacilities"
           @select="onSelectFacility($event)"
           @create="setupCreateParking"
         )
-      v-col(cols="12" md="4" xl="3")
+    v-row.mt-5
+      v-col(cols="12" md="7" xl="5")
+        vehicle-select(
+          :vehicles="vehicles"
+          :disabled="!selectedFacilityId"
+        )
     v-row(
       v-if="showSystem"
       align="center"
@@ -19,9 +25,11 @@
 
 <script>
 import FacilitySelect from '~/components/FacilitySelect';
+import VehicleSelect from '~/components/VehicleSelect';
 export default {
   components: {
     FacilitySelect,
+    VehicleSelect,
   },
   async asyncData ({ $fire }) {
     const db = $fire.firestore;
