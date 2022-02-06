@@ -127,6 +127,10 @@ export default {
         vehicleType: this.selectedVehicle.type,
       });
       console.log('nearest slot', nearestSlot);
+
+      // - TODO: Create park record, occupy slot
+      // - TODO: Unpark function
+      // - TODO: Add Entry function
     },
   },
 };
