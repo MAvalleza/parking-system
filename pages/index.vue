@@ -25,19 +25,23 @@
       align="center"
     )
       v-col(cols="12")
-        h3 System here
-        pre {{ parkingSlots }}
+        slots-list(
+          :vehicles="vehicles"
+          :parking-slots="parkingSlots"
+        )
 </template>
 
 <script>
 import EntrySelect from '~/components/EntrySelect';
 import FacilitySelect from '~/components/FacilitySelect';
 import VehicleSelect from '~/components/VehicleSelect';
+import SlotsList from '~/components/SlotsList';
 export default {
   components: {
     EntrySelect,
     FacilitySelect,
     VehicleSelect,
+    SlotsList,
   },
   async asyncData ({ $fire }) {
     const db = $fire.firestore;

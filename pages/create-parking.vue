@@ -216,7 +216,6 @@ export default {
           hourlyRate: HOURLY_RATES[slotInt],
           slotNo: index + 1,
           type: slotInt,
-          isOccupied: false,
           occupiedBy: null,
         };
         const slotRef = db.collection('parking-slots').doc();
