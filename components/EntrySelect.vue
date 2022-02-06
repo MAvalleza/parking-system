@@ -3,7 +3,7 @@
     v-select(
       v-model="selectedEntry"
       :items="entries"
-      item-value="id"
+      item-value="entryNo"
       outlined
       dense
       label="Select Entry Point"
@@ -49,7 +49,7 @@ export default {
       console.log('date time', this.parkingStartTime);
       console.log('formatted date time', format(parseISO(this.parkingStartTime), 'yyyy-mm-dd'));
       this.$emit('park', {
-        entry: this.selectedEntry,
+        entryNo: this.selectedEntry,
         startTime: this.parkingStartTime,
       });
     },

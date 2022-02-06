@@ -7,6 +7,7 @@
       dense
       label="Select Vehicle to Park"
       :disabled="disabled"
+      return-object
       @change="onSelect($event)"
     )
       template(slot="selection" slot-scope="data")

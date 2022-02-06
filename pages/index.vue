@@ -36,6 +36,7 @@ import EntrySelect from '~/components/EntrySelect';
 import FacilitySelect from '~/components/FacilitySelect';
 import VehicleSelect from '~/components/VehicleSelect';
 import SlotsList from '~/components/SlotsList';
+import { getNearestAvailableSlot } from '~/utils/parking';
 export default {
   components: {
     EntrySelect,
@@ -78,9 +79,9 @@ export default {
       this.selectedFacilityId = facilityId;
       this.loadData();
     },
-    onSelectVehicle (vehicleId) {
-      console.log('selected vehicle', vehicleId);
-      this.selectedVehicle = vehicleId;
+    onSelectVehicle (vehicle) {
+      console.log('selected vehicle', vehicle);
+      this.selectedVehicle = vehicle;
     },
     async loadData () {
       try {
@@ -118,8 +119,14 @@ export default {
       console.log('loaded slots', this.parkingSlots);
     },
     //
-    parkVehicle () {
-      //
+    parkVehicle (parkData) {
+      const { entryNo } = parkData;
+      const nearestSlot = getNearestAvailableSlot({
+        entryNo,
+        parkingSlots: this.parkingSlots,
+        vehicleType: this.selectedVehicle.type,
+      });
+      console.log('nearest slot', nearestSlot);
     },
   },
 };
