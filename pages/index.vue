@@ -13,6 +13,12 @@
         vehicle-select(
           :vehicles="vehicles"
           :disabled="!selectedFacilityId"
+          @select="onSelectVehicle($event)"
+        )
+        entry-select(
+          v-if="selectedVehicle"
+          :entries="parkingEntries"
+          @park="parkVehicle($event)"
         )
     v-row(
       v-if="showSystem"
@@ -24,10 +30,12 @@
 </template>
 
 <script>
+import EntrySelect from '~/components/EntrySelect';
 import FacilitySelect from '~/components/FacilitySelect';
 import VehicleSelect from '~/components/VehicleSelect';
 export default {
   components: {
+    EntrySelect,
     FacilitySelect,
     VehicleSelect,
   },
@@ -50,6 +58,7 @@ export default {
       showSystem: false,
       //
       selectedFacilityId: null,
+      selectedVehicle: null,
       parkingEntries: [],
       parkingSlots: [],
     };
@@ -64,6 +73,10 @@ export default {
       console.log('selected facility', facilityId);
       this.selectedFacilityId = facilityId;
       this.loadData();
+    },
+    onSelectVehicle (vehicleId) {
+      console.log('selected vehicle', vehicleId);
+      this.selectedVehicle = vehicleId;
     },
     async loadData () {
       try {
@@ -99,6 +112,10 @@ export default {
         ...doc.data(),
       }));
       console.log('loaded slots', this.parkingSlots);
+    },
+    //
+    parkVehicle () {
+      //
     },
   },
 };
