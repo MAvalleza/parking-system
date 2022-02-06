@@ -18,6 +18,7 @@
       color="secondary"
       depressed
       :disabled="disabled"
+      to="/create-vehicle"
       @click="onCreate"
     ).text-none Add new vehicle
 </template>
