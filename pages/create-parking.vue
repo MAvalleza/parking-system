@@ -217,6 +217,7 @@ export default {
           slotNo: index + 1,
           type: slotInt,
           isOccupied: false,
+          occupiedBy: null,
         };
         const slotRef = db.collection('parking-slots').doc();
         batch.set(slotRef, payload);
