@@ -54,12 +54,10 @@ export const createParkRecord = async (db, {
   return newRecord;
 };
 
-// export const getParkRecord = async (db, {
-//   vehicle,
-//   facility,
-// }) => {
-//   const snapshot = await db.collection('parking-records').where('vehicle', '==', vehicle)
-//     .where('facility', '==', facility)
-//     .limit(to: 1)
-//     .get();
-// }
+export const getParkRecord = async (db, recordId) => {
+  const snapshot = await db.collection('parking-records').doc(recordId).get();
+  return {
+    id: snapshot.id,
+    ...snapshot.data(),
+  };
+};

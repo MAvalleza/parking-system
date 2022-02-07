@@ -47,7 +47,7 @@ export default {
   methods: {
     onPark () {
       console.log('date time', this.parkingStartTime);
-      console.log('formatted date time', format(parseISO(this.parkingStartTime), 'yyyy-mm-dd'));
+      console.log('formatted date time', format(parseISO(this.parkingStartTime), 'yyyy-MM-dd'));
       this.$emit('park', {
         entryNo: this.selectedEntry,
         startTime: this.parkingStartTime,

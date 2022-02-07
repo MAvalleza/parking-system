@@ -16,9 +16,9 @@
       )
         span.primary--text {{ distance }}&nbsp;
         span from&nbsp;
-        span.warning--text Entry {{ dKey + 1}}
+        span.warning--text E{{ dKey + 1}}
       v-col
-        v-btn(small color="error" depressed :disabled="!slot.occupiedBy") UNPARK
+        v-btn(small color="error" depressed :disabled="!slot.occupiedBy" @click="onUnpark(slot)") UNPARK
 </template>
 
 <script>
@@ -55,6 +55,9 @@ export default {
       const matchedVehicle = this.vehicles.find(vehicle => vehicle.id === occupiedBy);
       if (matchedVehicle) return `${matchedVehicle.name} - ${VEHICLE_SIZE_TEXT[matchedVehicle.type]}`;
       return 'UNKNOWN VEHICLE';
+    },
+    onUnpark (slot) {
+      this.$emit('unpark', slot);
     },
   },
 };

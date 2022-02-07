@@ -30,6 +30,7 @@
           :parking-slots="parkingSlots"
           @unpark="unparkVehicle($event)"
         )
+    unparking-dialog(ref="unparkingDialog")
     v-snackbar(
       v-model="snackVisible"
       :color="snackModel.color"
@@ -43,9 +44,11 @@ import EntrySelect from '~/components/EntrySelect';
 import FacilitySelect from '~/components/FacilitySelect';
 import VehicleSelect from '~/components/VehicleSelect';
 import SlotsList from '~/components/SlotsList';
+import UnparkingDialog from '~/components/UnparkingDialog';
 import {
   getNearestAvailableSlot,
   createParkRecord,
+  getParkRecord,
 } from '~/utils/parking';
 export default {
   components: {
@@ -53,6 +56,7 @@ export default {
     FacilitySelect,
     VehicleSelect,
     SlotsList,
+    UnparkingDialog,
   },
   async asyncData ({ $fire }) {
     const db = $fire.firestore;
@@ -185,14 +189,28 @@ export default {
         this.loading = false;
       }
     },
-    // // - TODO: Unpark function
-    // async unparkVehicle (vehicleId) {
-    //   try {
-    //     this.loading = true;
-    //     const db = this.$fire.firestore;
-
-    //   }
-    // }
+    // - TODO: Unpark function
+    async unparkVehicle (slot) {
+      try {
+        this.loading = true;
+        const db = this.$fire.firestore;
+        const existingRecord = await getParkRecord(db, slot.recordRef);
+        console.log('existing Record', existingRecord);
+        const result = await this.$refs.unparkingDialog.open({
+          slotData: slot,
+          recordData: existingRecord,
+        });
+        console.log('result', result);
+      } catch (e) {
+        console.error(e);
+        this.showSnack({
+          color: 'error',
+          message: 'There was an error in unparking.',
+        });
+      } finally {
+        this.loading = false;
+      }
+    },
     // - TODO: Add New Entry function
     updateSlotsDisplay ({
       slotRef,
@@ -210,7 +228,7 @@ export default {
     //
     showSnack ({ color, message }) {
       this.snackModel = { color, message };
-      this.showSnack = true;
+      this.snackVisible = true;
     },
   },
 };
