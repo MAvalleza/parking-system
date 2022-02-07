@@ -28,6 +28,7 @@
         slots-list(
           :vehicles="vehicles"
           :parking-slots="parkingSlots"
+          @unpark="unparkVehicle($event)"
         )
     v-snackbar(
       v-model="snackVisible"
@@ -155,7 +156,7 @@ export default {
         this.loading = true;
         const db = this.$fire.firestore;
         // Create park record
-        await createParkRecord(db, {
+        const newRecord = await createParkRecord(db, {
           vehicle: this.selectedVehicle.id,
           startTime,
           entryNo,
@@ -165,13 +166,15 @@ export default {
         });
 
         // Update slots UI as occupied
-        this.updateSlotsDisplay(nearestSlot.id, this.selectedVehicle.id);
+        this.updateSlotsDisplay({
+          slotRef: nearestSlot.id,
+          vehicleId: this.selectedVehicle.id,
+          recordRef: newRecord.id,
+        });
         this.showSnack({
           color: 'success',
           message: 'Vehicle parked successfully!',
         });
-        // - TODO: Unpark function
-        // - TODO: Add New Entry function
       } catch (e) {
         console.error(e);
         this.showSnack({
@@ -182,10 +185,24 @@ export default {
         this.loading = false;
       }
     },
-    updateSlotsDisplay (slotRef, vehicleId) {
+    // // - TODO: Unpark function
+    // async unparkVehicle (vehicleId) {
+    //   try {
+    //     this.loading = true;
+    //     const db = this.$fire.firestore;
+
+    //   }
+    // }
+    // - TODO: Add New Entry function
+    updateSlotsDisplay ({
+      slotRef,
+      vehicleId,
+      recordRef,
+    }) {
       this.parkingSlots = this.parkingSlots.map((slot) => {
         if (slot.id === slotRef) {
           slot.occupiedBy = vehicleId;
+          slot.recordRef = recordRef;
         }
         return slot;
       });

@@ -45,11 +45,21 @@ export const createParkRecord = async (db, {
   };
   console.log('record', record);
 
-  const [newRecord] = await Promise.all([
-    db.collection('parking-records').add(record), // Add to records collection
-    db.collection('parking-slots').doc(slotRef).update({
-      occupiedBy: vehicle,
-    }), // Update slot as occupied
-  ]);
+  const newRecord = await db.collection('parking-records').add(record); // Add to records collection
+  // Update slot as occupied
+  await db.collection('parking-slots').doc(slotRef).update({
+    occupiedBy: vehicle,
+    recordRef: newRecord.id,
+  });
   return newRecord;
 };
+
+// export const getParkRecord = async (db, {
+//   vehicle,
+//   facility,
+// }) => {
+//   const snapshot = await db.collection('parking-records').where('vehicle', '==', vehicle)
+//     .where('facility', '==', facility)
+//     .limit(to: 1)
+//     .get();
+// }
