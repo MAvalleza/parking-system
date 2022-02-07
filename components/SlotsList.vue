@@ -8,7 +8,7 @@
       v-col
         h4 Slot {{ slot.slotNo }} - {{ slot.type | format-size }}
       v-col
-        span(v-if="slot.occupiedBy").error--text {{ slot.occupiedBy | format-vehicle }}
+        span(v-if="slot.occupiedBy").error--text {{ formatVehicle(slot.occupiedBy) }}
         i(v-else) No vehicle
       v-col(
         v-for="(distance, dKey) in slot.distances"
@@ -39,11 +39,6 @@ export default {
     formatSize (type) {
       return SLOT_SIZE_TEXT[type];
     },
-    formatVehicle (occupiedBy) {
-      const matchedVehicle = this.vehicles.find(vehicle => vehicle.id === occupiedBy);
-      if (matchedVehicle) return `${matchedVehicle.name} - ${VEHICLE_SIZE_TEXT[matchedVehicle.type]}`;
-      return 'UNKNOWN VEHICLE';
-    },
   },
   props: {
     parkingSlots: {
@@ -53,6 +48,13 @@ export default {
     vehicles: {
       type: Array,
       default: () => ([]),
+    },
+  },
+  methods: {
+    formatVehicle (occupiedBy) {
+      const matchedVehicle = this.vehicles.find(vehicle => vehicle.id === occupiedBy);
+      if (matchedVehicle) return `${matchedVehicle.name} - ${VEHICLE_SIZE_TEXT[matchedVehicle.type]}`;
+      return 'UNKNOWN VEHICLE';
     },
   },
 };

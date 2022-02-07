@@ -29,6 +29,12 @@
           :vehicles="vehicles"
           :parking-slots="parkingSlots"
         )
+    v-snackbar(
+      v-model="snackVisible"
+      :color="snackModel.color"
+    ) {{ snackModel.message }}
+    v-overlay(v-model="loading")
+      v-progress-circular(indeterminate size="64")
 </template>
 
 <script>
@@ -36,7 +42,10 @@ import EntrySelect from '~/components/EntrySelect';
 import FacilitySelect from '~/components/FacilitySelect';
 import VehicleSelect from '~/components/VehicleSelect';
 import SlotsList from '~/components/SlotsList';
-import { getNearestAvailableSlot } from '~/utils/parking';
+import {
+  getNearestAvailableSlot,
+  createParkRecord,
+} from '~/utils/parking';
 export default {
   components: {
     EntrySelect,
@@ -60,12 +69,20 @@ export default {
   },
   data () {
     return {
+      loading: false,
+      //
       showSystem: false,
       //
       selectedFacilityId: null,
       selectedVehicle: null,
       parkingEntries: [],
       parkingSlots: [],
+      // snack
+      snackVisible: false,
+      snackModel: {
+        color: null,
+        message: null,
+      },
     };
   },
   methods: {
@@ -85,6 +102,7 @@ export default {
     },
     async loadData () {
       try {
+        this.loading = true;
         await Promise.all([
           this.loadParkingEntries(),
           this.loadParkingSlots(),
@@ -92,6 +110,8 @@ export default {
         this.showSystem = true;
       } catch (e) {
         console.error(e);
+      } finally {
+        this.loading = false;
       }
     },
     async loadParkingEntries () {
@@ -119,8 +139,8 @@ export default {
       console.log('loaded slots', this.parkingSlots);
     },
     //
-    parkVehicle (parkData) {
-      const { entryNo } = parkData;
+    async parkVehicle (parkData) {
+      const { entryNo, startTime } = parkData;
       const nearestSlot = getNearestAvailableSlot({
         entryNo,
         parkingSlots: this.parkingSlots,
@@ -128,9 +148,52 @@ export default {
       });
       console.log('nearest slot', nearestSlot);
 
-      // - TODO: Create park record, occupy slot
-      // - TODO: Unpark function
-      // - TODO: Add Entry function
+      if (!nearestSlot) {
+        this.showSnack({ color: 'error', message: 'No more available slots' });
+      }
+      try {
+        this.loading = true;
+        const db = this.$fire.firestore;
+        // Create park record
+        await createParkRecord(db, {
+          vehicle: this.selectedVehicle.id,
+          startTime,
+          entryNo,
+          slotNo: nearestSlot.slotNo,
+          slotRef: nearestSlot.id,
+          facility: this.selectedFacilityId,
+        });
+
+        // Update slots UI as occupied
+        this.updateSlotsDisplay(nearestSlot.id, this.selectedVehicle.id);
+        this.showSnack({
+          color: 'success',
+          message: 'Vehicle parked successfully!',
+        });
+        // - TODO: Unpark function
+        // - TODO: Add New Entry function
+      } catch (e) {
+        console.error(e);
+        this.showSnack({
+          color: 'error',
+          message: 'There was an error in parking the vehicle',
+        });
+      } finally {
+        this.loading = false;
+      }
+    },
+    updateSlotsDisplay (slotRef, vehicleId) {
+      this.parkingSlots = this.parkingSlots.map((slot) => {
+        if (slot.id === slotRef) {
+          slot.occupiedBy = vehicleId;
+        }
+        return slot;
+      });
+    },
+    //
+    showSnack ({ color, message }) {
+      this.snackModel = { color, message };
+      this.showSnack = true;
     },
   },
 };

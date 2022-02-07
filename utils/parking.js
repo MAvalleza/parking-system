@@ -1,3 +1,5 @@
+import isEmpty from 'lodash/isEmpty';
+
 export const getNearestAvailableSlot = ({
   entryNo,
   parkingSlots,
@@ -8,9 +10,46 @@ export const getNearestAvailableSlot = ({
   // Finally, we sort everything according to the distance and get the first element
   const filteredSlots = parkingSlots.filter(slot => !slot.occupiedBy && vehicleType <= slot.type)
     .map(slot => ({
+      id: slot.id,
       slotNo: slot.slotNo,
       distance: slot.distances[entryNo - 1],
     }))
     .sort((a, b) => a.distance - b.distance);
   return filteredSlots[0];
+};
+
+export const createParkRecord = async (db, {
+  vehicle,
+  startTime,
+  entryNo,
+  slotNo,
+  slotRef,
+  facility,
+}) => {
+  // TODO: Check if continuous
+  // - If there is a record of the vehicle from one hour ago
+  const continuousRecord = {};
+
+  // - TODO: Compute consumable hours
+  const record = {
+    balance: 0,
+    consumableHours: 0, // dependent on computed
+    isContinuous: !isEmpty(continuousRecord),
+    startTime,
+    endTime: null,
+    entryNo,
+    slotNo,
+    slotRef,
+    facility,
+    vehicle,
+  };
+  console.log('record', record);
+
+  const [newRecord] = await Promise.all([
+    db.collection('parking-records').add(record), // Add to records collection
+    db.collection('parking-slots').doc(slotRef).update({
+      occupiedBy: vehicle,
+    }), // Update slot as occupied
+  ]);
+  return newRecord;
 };
