@@ -8,16 +8,34 @@
         p {{ startTime }}
         h3 Parking Slot Size
         p {{ slotSize }}
+        v-text-field(
+          v-model="endTime"
+          type="datetime-local"
+          outlined
+          dense
+          label="Unparking Date and Time"
+        )
+
+        template(v-if="endTime")
+          h2 TOTAL BALANCE:&nbsp;
+            span.primary--text {{ balance.toLocaleString() }}
+          h3 HOURS PARKED: {{ hoursParked }}
       v-divider
       v-card-actions
         v-spacer
         v-btn(color="error" outlined @click="cancel") Cancel
-        v-btn(color="primary" outlined @click="confirm") Confirm
+        v-btn(
+          :disabled="!endTime"
+          color="primary"
+          outlined
+          @click="confirm"
+        ) Confirm
 </template>
 
 <script>
 import { format, parseISO } from 'date-fns';
 import { SIZE_TEXT } from '~/constants/slot-mappings';
+import { computeBalance } from '~/utils/parking';
 export default {
   data () {
     return {
@@ -30,8 +48,31 @@ export default {
       slotSize: null,
       //
       balance: 0,
+      remainingHours: 0,
+      hoursParked: 0,
+      //
       endTime: null,
     };
+  },
+  watch: {
+    endTime (val) {
+      if (!val) {
+        this.balance = 0;
+        this.remainingHours = 0;
+        return;
+      }
+      const { startTime, isContinuous, consumableHours } = this.recordData;
+      const { balance, remainingHours, hoursParked } = computeBalance({
+        startTime,
+        endTime: val,
+        slotType: this.slotData.type,
+        isContinuous,
+        consumableHours,
+      });
+      this.balance = balance;
+      this.remainingHours = remainingHours;
+      this.hoursParked = hoursParked;
+    },
   },
   methods: {
     open ({
@@ -51,6 +92,7 @@ export default {
     confirm () {
       const data = {
         balance: this.balance,
+        consumableHours: this.remainingHours,
         endTime: this.endTime,
       };
       this.resolve(data);

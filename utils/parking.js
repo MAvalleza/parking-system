@@ -1,4 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
+import { differenceInHours, parseISO } from 'date-fns';
+import { HOURLY_RATES } from '~/constants/slot-mappings';
 
 export const getNearestAvailableSlot = ({
   entryNo,
@@ -59,5 +61,57 @@ export const getParkRecord = async (db, recordId) => {
   return {
     id: snapshot.id,
     ...snapshot.data(),
+  };
+};
+
+export const computeBalance = ({
+  startTime,
+  endTime,
+  slotType,
+  isContinuous,
+  consumableHours,
+}) => {
+  // TODO: Confirm regarding overtime 24 hour chunk
+  // Compute time difference
+  const hoursParked = differenceInHours(parseISO(endTime), parseISO(startTime), { roundingMethod: 'ceil' });
+  console.log('hours', hoursParked);
+
+  // get hourly overtime rate
+  const OVERTIME_PER_HOUR = HOURLY_RATES[slotType];
+
+  let balance = 0;
+  let chargeableHours = 0; // hours to be charged for excess
+  if (isContinuous) {
+    chargeableHours = hoursParked - consumableHours;
+  } else {
+    // FRESH CHARGE
+    balance += 40;
+    chargeableHours = hoursParked - 3; // Since we already charged 40 for flat rate, we deduct 3 hours from the chargeable hours
+  }
+  // No more hours to charge
+  if (!chargeableHours) return { balance, remainingHours: 0, hoursParked };
+
+  // Negative chargeableHours mean that the vehicle did not consume fully what it has paid for
+  if (chargeableHours < 0) return { balance, remainingHours: Math.abs(chargeableHours), hoursParked };
+
+  if (chargeableHours >= 24) {
+    // Split hours that are chargeable by 24-hour chunks
+    const nonChunkedHours = chargeableHours % 24;
+    const chunkedHours = (chargeableHours - nonChunkedHours) / 24;
+
+    balance += (nonChunkedHours * OVERTIME_PER_HOUR) + (chunkedHours * 5000);
+    return {
+      balance,
+      remainingHours: 0,
+      hoursParked,
+    };
+  }
+
+  // Charge remaining hours with overtime rate
+  balance += (chargeableHours * OVERTIME_PER_HOUR);
+  return {
+    balance,
+    remainingHours: 0,
+    hoursParked,
   };
 };
