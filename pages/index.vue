@@ -19,6 +19,7 @@
           v-if="selectedVehicle"
           :entries="parkingEntries"
           @park="parkVehicle($event)"
+          @create:entry="onCreateEntry"
         )
     v-row(
       v-if="showSystem"
@@ -31,6 +32,7 @@
           @unpark="unparkVehicle($event)"
         )
     unparking-dialog(ref="unparkingDialog")
+    create-entry-dialog(ref="createEntryDialog")
     v-snackbar(
       v-model="snackVisible"
       :color="snackModel.color"
@@ -45,6 +47,7 @@ import FacilitySelect from '~/components/FacilitySelect';
 import VehicleSelect from '~/components/VehicleSelect';
 import SlotsList from '~/components/SlotsList';
 import UnparkingDialog from '~/components/UnparkingDialog';
+import CreateEntryDialog from '~/components/CreateEntryDialog';
 import {
   getNearestAvailableSlot,
   createParkRecord,
@@ -57,6 +60,7 @@ export default {
     VehicleSelect,
     SlotsList,
     UnparkingDialog,
+    CreateEntryDialog,
   },
   async asyncData ({ $fire }) {
     const db = $fire.firestore;
@@ -212,6 +216,14 @@ export default {
       }
     },
     // - TODO: Add New Entry function
+    async onCreateEntry () {
+      const result = await this.$refs.createEntryDialog.open({
+        slotsTotal: this.parkingSlots.length,
+        newEntryNo: this.parkingEntries.length + 1,
+      });
+      if (!result) return;
+      console.log('result entry', result);
+    },
     updateSlotsDisplay ({
       slotRef,
       vehicleId,

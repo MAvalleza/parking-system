@@ -1,17 +1,24 @@
 <template lang="pug">
   div
-    v-select(
-      v-model="selectedEntry"
-      :items="entries"
-      item-value="entryNo"
-      outlined
-      dense
-      label="Select Entry Point"
-    )
-      template(slot="selection" slot-scope="data")
-        span Entry {{ data.item.entryNo }}
-      template(slot="item" slot-scope="data")
-        span Entry {{ data.item.entryNo }}
+    div.d-flex
+      v-select(
+        v-model="selectedEntry"
+        :items="entries"
+        item-value="entryNo"
+        outlined
+        dense
+        label="Select Entry Point"
+      )
+        template(slot="selection" slot-scope="data")
+          span Entry {{ data.item.entryNo }}
+        template(slot="item" slot-scope="data")
+          span Entry {{ data.item.entryNo }}
+      h4.mx-5 or
+      v-btn(
+        color="warning"
+        depressed
+        @click="$emit('create:entry')"
+      ).text-none Add new entry point
     div.d-flex
       v-text-field(
         v-model="parkingStartTime"

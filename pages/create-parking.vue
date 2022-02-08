@@ -147,14 +147,14 @@ export default {
         const { distancesString, entryNo } = entry;
         const str = distancesString.replace(/\s+/g, '');
         const distancesArray = str.split(',');
-        if (distancesArray.find(slot => isNaN(slot) || parseInt(slot) < 1)) {
+        if (distancesArray.find(slot => isNan(slot) || parseInt(slot) < 1)) {
           this.snackModel = { color: 'warning', message: 'Distances input is invalid' };
           this.showSnack = true;
           this.valid = false;
         }
 
         if (distancesArray.length !== this.parkingSlotsTotal) {
-          this.snackModel = { color: 'warning', message: 'Insufficient distance inputs' };
+          this.snackModel = { color: 'warning', message: 'Wrong number of distance inputs' };
           this.showSnack = true;
           this.valid = false;
         }
