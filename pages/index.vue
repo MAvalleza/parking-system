@@ -215,7 +215,6 @@ export default {
         this.loading = false;
       }
     },
-    // - TODO: Add New Entry function
     async onCreateEntry () {
       const result = await this.$refs.createEntryDialog.open({
         slotsTotal: this.parkingSlots.length,
@@ -223,6 +222,51 @@ export default {
       });
       if (!result) return;
       console.log('result entry', result);
+      try {
+        this.loading = true;
+        const { distances, newEntryNo } = result;
+        const newDistances = [...this.parkingSlots].map((slot, index) => {
+          const existingDistances = slot.distances;
+          existingDistances.push(distances[index]);
+          return existingDistances;
+        });
+        await this.createEntry(newEntryNo);
+        await this.updateParkingDistances(newDistances);
+        this.showSnack({
+          color: 'success',
+          message: 'New entry point created successfully!',
+        });
+      } catch (e) {
+        console.error(e);
+        this.showSnack({
+          color: 'error',
+          message: 'Failed to create a new entry point',
+        });
+      } finally {
+        this.loading = false;
+      }
+    },
+    async createEntry (newEntryNo) {
+      const db = this.$fire.firestore;
+      const payload = {
+        entryNo: newEntryNo,
+        facility: this.selectedFacilityId,
+      };
+      const newEntry = await db.collection('parking-entries').add(payload);
+      // Update UI
+      this.parkingEntries.push({ id: newEntry.id, ...payload });
+    },
+    async updateParkingDistances (newDistances) {
+      const db = this.$fire.firestore;
+      const batch = db.batch();
+      this.parkingSlots.forEach((slot, index) => {
+        const payload = {
+          distances: newDistances[index],
+        };
+        const slotRef = db.collection('parking-slots').doc(slot.id);
+        batch.update(slotRef, payload);
+      });
+      await batch.commit();
     },
     updateSlotsDisplay ({
       slotRef,

@@ -16,16 +16,15 @@
       v-card-actions
         v-spacer
         v-btn(
-          color="success"
-          outlined
-          :disabled="!distancesString"
-          @click="submit"
-        ) Create Entry
-        v-btn(
           color="error"
           outlined
           @click="cancel"
         ) Cancel
+        v-btn(
+          color="success"
+          :disabled="!distancesString"
+          @click="submit"
+        ) Create Entry
     v-snackbar(
       v-model="snackVisible"
       :color="snackModel.color"

@@ -6,7 +6,7 @@
       :key="key"
     )
       v-col
-        h4 Slot {{ slot.slotNo }} - {{ slot.type | format-size }}
+        h4(:class="{'error--text': slot.occupiedBy}") Slot {{ slot.slotNo }} - {{ slot.type | format-size }}
       v-col
         span(v-if="slot.occupiedBy").error--text {{ formatVehicle(slot.occupiedBy) }}
         i(v-else) No vehicle
@@ -15,7 +15,7 @@
         :key="dKey"
       )
         span.primary--text {{ distance }}&nbsp;
-        span from&nbsp;
+        span &nbsp;-&nbsp;
         span.warning--text E{{ dKey + 1}}
       v-col
         v-btn(small color="error" depressed :disabled="!slot.occupiedBy" @click="onUnpark(slot)") UNPARK
