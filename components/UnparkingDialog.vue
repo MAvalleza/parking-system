@@ -27,7 +27,6 @@
         v-btn(
           :disabled="!endTime"
           color="primary"
-          outlined
           @click="confirm"
         ) Confirm
 </template>
