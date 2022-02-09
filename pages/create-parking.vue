@@ -145,18 +145,26 @@ export default {
       this.valid = true;
       const entriesFormatted = this.entries.map((entry) => {
         const { distancesString, entryNo } = entry;
+        if (!distancesString) {
+          this.snackModel = { color: 'warning', message: 'Please provide an input' };
+          this.showSnack = true;
+          this.valid = false;
+          return false;
+        }
         const str = distancesString.replace(/\s+/g, '');
         const distancesArray = str.split(',');
         if (distancesArray.find(slot => isNan(slot) || parseInt(slot) < 1)) {
           this.snackModel = { color: 'warning', message: 'Distances input is invalid' };
           this.showSnack = true;
           this.valid = false;
+          return false;
         }
 
         if (distancesArray.length !== this.parkingSlotsTotal) {
           this.snackModel = { color: 'warning', message: 'Wrong number of distance inputs' };
           this.showSnack = true;
           this.valid = false;
+          return false;
         }
         return {
           entryNo,
