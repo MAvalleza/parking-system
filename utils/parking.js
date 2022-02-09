@@ -15,8 +15,12 @@ export const getNearestAvailableSlot = ({
       id: slot.id,
       slotNo: slot.slotNo,
       distance: slot.distances[entryNo - 1],
+      type: slot.type,
     }))
-    .sort((a, b) => a.distance - b.distance);
+    .sort((a, b) => {
+      if (a.distance === b.distance) return a.type - b.type;
+      return a.distance - b.distance;
+    });
   return filteredSlots[0];
 };
 
@@ -61,7 +65,9 @@ export const createParkRecord = async (db, {
   if (!isEmpty(recentRecord)) {
     const parkingSessionDifference = differenceInHours(parseISO(startTime), parseISO(recentRecord.endTime), { roundingMethod: 'ceil' });
     record.isContinuous = parkingSessionDifference <= 1;
-    record.consumableHours = record.isContinuous ? Math.ceil(recentRecord.remainingHours - parkingSessionDifference) : 0;
+
+    const consumableHours = Math.ceil(recentRecord.remainingHours - parkingSessionDifference);
+    record.consumableHours = (record.isContinuous && consumableHours > 0) ? consumableHours : 0;
   }
 
   console.log('record payload', record);
