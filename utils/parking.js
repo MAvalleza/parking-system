@@ -28,15 +28,11 @@ export const createParkRecord = async (db, {
   slotRef,
   facility,
 }) => {
-  // TODO: Check if continuous
-  // - If there is a record of the vehicle from one hour ago
-  const continuousRecord = {};
-
-  // - TODO: Compute consumable hours
   const record = {
     balance: 0,
-    consumableHours: 0, // dependent on computed
-    isContinuous: !isEmpty(continuousRecord),
+    consumableHours: 0,
+    remainingHours: 0,
+    isContinuous: false,
     startTime,
     endTime: null,
     entryNo,
@@ -45,7 +41,30 @@ export const createParkRecord = async (db, {
     facility,
     vehicle,
   };
-  console.log('record', record);
+
+  // Check if continuous by checking previous records
+  const previousRecordsSnapshot = await db.collection('parking-records')
+    .where('facility', '==', facility)
+    .where('vehicle', '==', vehicle)
+    .where('endTime', '!=', null)
+    .orderBy('endTime', 'desc')
+    .limit(1)
+    .get();
+
+  const previousRecords = previousRecordsSnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  const recentRecord = previousRecords[0];
+
+  console.log('recentRecord', recentRecord);
+  if (!isEmpty(recentRecord)) {
+    const parkingSessionDifference = differenceInHours(parseISO(startTime), parseISO(recentRecord.endTime), { roundingMethod: 'ceil' });
+    record.isContinuous = parkingSessionDifference <= 1;
+    record.consumableHours = record.isContinuous ? Math.ceil(recentRecord.remainingHours - parkingSessionDifference) : 0;
+  }
+
+  console.log('record payload', record);
 
   const newRecord = await db.collection('parking-records').add(record); // Add to records collection
   // Update slot as occupied

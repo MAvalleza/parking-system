@@ -91,7 +91,7 @@ export default {
     confirm () {
       const data = {
         balance: this.balance,
-        consumableHours: this.remainingHours,
+        remainingHours: this.remainingHours,
         endTime: this.endTime,
       };
       this.resolve(data);

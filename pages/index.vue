@@ -193,7 +193,6 @@ export default {
         this.loading = false;
       }
     },
-    // - TODO: Unpark function
     async unparkVehicle (slot) {
       try {
         this.loading = true;
@@ -210,7 +209,7 @@ export default {
         // Update park record and parking slot
         await Promise.all([
           db.collection('parking-records').doc(existingRecord.id).update({
-            consumableHours: result.consumableHours,
+            remainingHours: result.remainingHours,
             endTime: result.endTime,
             balance: result.balance,
           }),
