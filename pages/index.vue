@@ -205,6 +205,30 @@ export default {
           recordData: existingRecord,
         });
         console.log('result', result);
+        if (!result) return;
+
+        // Update park record and parking slot
+        await Promise.all([
+          db.collection('parking-records').doc(existingRecord.id).update({
+            consumableHours: result.consumableHours,
+            endTime: result.endTime,
+            balance: result.balance,
+          }),
+          db.collection('parking-slots').doc(slot.id).update({
+            occupiedBy: null,
+            recordRef: null,
+          }),
+        ]);
+        // Update UI
+        this.updateSlotsDisplay({
+          slotRef: slot.id,
+          vehicleId: null,
+          recordRef: null,
+        });
+        this.showSnack({
+          color: 'success',
+          message: 'The vehicle has been unparked',
+        });
       } catch (e) {
         console.error(e);
         this.showSnack({
