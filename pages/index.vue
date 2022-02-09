@@ -150,6 +150,11 @@ export default {
     //
     async parkVehicle (parkData) {
       const { entryNo, startTime } = parkData;
+      // Guard parked vehicle
+      if (this.parkingSlots.find(slot => slot.occupiedBy === this.selectedVehicle.id)) {
+        this.showSnack({ color: 'error', message: 'This vehicle is already parked.' });
+        return;
+      }
       const nearestSlot = getNearestAvailableSlot({
         entryNo,
         parkingSlots: this.parkingSlots,
