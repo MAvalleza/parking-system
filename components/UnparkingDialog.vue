@@ -95,10 +95,12 @@ export default {
         endTime: this.endTime,
       };
       this.resolve(data);
+      this.endTime = null;
       this.dialog = false;
     },
     cancel () {
       this.resolve(false);
+      this.endTime = null;
       this.dialog = false;
     },
   },
