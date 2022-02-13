@@ -21,6 +21,7 @@
           @park="parkVehicle($event)"
           @create:entry="onCreateEntry"
         )
+    v-divider
     v-row(
       v-if="showSystem"
       align="center"
@@ -76,18 +77,6 @@ export default {
     }));
     return { parkingFacilities, vehicles };
   },
-  head () {
-    return {
-      title: 'Parking System',
-      meta: [
-        {
-          hid: 'description',
-          name: 'description',
-          content: 'Parking System made in Nuxt.js',
-        },
-      ],
-    };
-  },
   data () {
     return {
       loading: false,
@@ -104,6 +93,18 @@ export default {
         color: null,
         message: null,
       },
+    };
+  },
+  head () {
+    return {
+      title: 'Parking System',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Parking System made in Nuxt.js',
+        },
+      ],
     };
   },
   methods: {
