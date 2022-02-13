@@ -98,6 +98,18 @@ export default {
       },
     };
   },
+  head () {
+    return {
+      title: 'Create Parking Facility',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Build a parking system',
+        },
+      ],
+    };
+  },
   methods: {
     onNameInput () {
       if (!this.facilityName) {

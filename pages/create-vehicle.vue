@@ -62,6 +62,18 @@ export default {
       },
     };
   },
+  head () {
+    return {
+      title: 'Create Vehicle',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Add a vehicle to the list',
+        },
+      ],
+    };
+  },
   methods: {
     async createVehicle () {
       try {

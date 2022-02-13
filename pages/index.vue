@@ -76,6 +76,18 @@ export default {
     }));
     return { parkingFacilities, vehicles };
   },
+  head () {
+    return {
+      title: 'Parking System',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Parking System made in Nuxt.js',
+        },
+      ],
+    };
+  },
   data () {
     return {
       loading: false,
