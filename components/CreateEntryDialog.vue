@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import isNan from 'lodash/isNan';
+import isNaN from 'lodash/isNaN';
 export default {
   data () {
     return {
@@ -71,7 +71,7 @@ export default {
       // Validate data
       const str = this.distancesString.replace(/\s+/g, '');
       const distancesArray = str.split(',');
-      if (distancesArray.find(slot => isNan(slot) || parseInt(slot) < 1)) {
+      if (distancesArray.find(slot => isNaN(slot) || parseInt(slot) < 1)) {
         this.snackModel = { color: 'warning', message: 'Distances input is invalid' };
         this.snackVisible = true;
         return;

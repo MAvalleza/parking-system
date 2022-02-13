@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import isNan from 'lodash/isNan';
+import isNaN from 'lodash/isNaN';
 import { HOURLY_RATES } from '~/constants/slot-mappings';
 
 const VALID_NUMBERS = [0, 1, 2];
@@ -143,7 +143,7 @@ export default {
       const str = this.parkingSlotsString.replace(/\s+/g, '');
       this.parkingSlotsArray = str.split(',');
       console.log('parking slots', this.parkingSlotsArray);
-      if (this.parkingSlotsArray.find(slot => isNan(parseInt(slot)) ||
+      if (this.parkingSlotsArray.find(slot => isNaN(parseInt(slot)) ||
         !VALID_NUMBERS.includes(parseInt(slot)))) {
         this.snackModel = { color: 'warning', message: 'Parking slots input is invalid' };
         this.showSnack = true;
@@ -165,7 +165,7 @@ export default {
         }
         const str = distancesString.replace(/\s+/g, '');
         const distancesArray = str.split(',');
-        if (distancesArray.find(slot => isNan(slot) || parseInt(slot) < 1)) {
+        if (distancesArray.find(slot => isNaN(slot) || parseInt(slot) < 1)) {
           this.snackModel = { color: 'warning', message: 'Distances input is invalid' };
           this.showSnack = true;
           this.valid = false;
