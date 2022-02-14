@@ -4,6 +4,7 @@
       dense
       v-for="(slot, key) in parkingSlots"
       :key="key"
+      style="font-size: 14px;"
     )
       v-col
         h4(:class="{'error--text': slot.occupiedBy}") Slot {{ slot.slotNo }} - {{ slot.type | format-size }}
@@ -14,10 +15,10 @@
         v-for="(distance, dKey) in slot.distances"
         :key="dKey"
       )
-        span.primary--text {{ distance }}&nbsp;
+        strong.primary--text {{ distance }}&nbsp;
         span &nbsp;-&nbsp;
-        span.warning--text E{{ dKey + 1}}
-      v-col
+        strong.warning--text Ent{{ dKey + 1}}
+      v-col.text-center
         v-btn(small color="error" depressed :disabled="!slot.occupiedBy" @click="onUnpark(slot)") UNPARK
 </template>
 
