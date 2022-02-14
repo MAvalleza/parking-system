@@ -177,6 +177,7 @@ export default {
 
       if (!nearestSlot) {
         this.showSnack({ color: 'error', message: 'No more available slots' });
+        return;
       }
       try {
         this.loading = true;
