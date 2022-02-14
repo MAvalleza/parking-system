@@ -8,6 +8,8 @@
         p {{ startTime }}
         h3 Parking Slot Size
         p {{ slotSize }}
+        h3 Continuous Charging?
+        p {{ recordData.isContinuous ? 'YES' : 'NO' }}
         v-text-field(
           v-model="endTime"
           type="datetime-local"
@@ -16,16 +18,18 @@
           label="Unparking Date and Time"
         )
 
-        template(v-if="endTime")
+        template(v-if="endTime && hoursParked > 0")
           h2 TOTAL BALANCE:&nbsp;
             span.primary--text {{ balance.toLocaleString() }}
           h3 HOURS PARKED: {{ hoursParked }}
+        template(v-else-if="endTime && hoursParked < 0")
+          span.error--text Cannot select a past date
       v-divider
       v-card-actions
         v-spacer
         v-btn(color="error" outlined @click="cancel") Cancel
         v-btn(
-          :disabled="!endTime"
+          :disabled="!endTime || hoursParked < 0"
           color="primary"
           @click="confirm"
         ) Confirm
