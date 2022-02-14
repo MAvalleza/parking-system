@@ -24,7 +24,7 @@
         v-btn(
           color="success"
           outlined
-          :disabled="loading || !vehicleName || !vehicleType"
+          :disabled="loading || !vehicleName || ![0,1,2].includes(vehicleType)"
           :loading="loading"
           @click="createVehicle"
         ) Create Vehicle
